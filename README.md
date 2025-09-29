@@ -35,13 +35,13 @@ flowchart TD
     
     F --> G[Send Email<br/>SMTP delivery<br/>til abonnenter]
     
-    style A fill:#ff6b6b
-    style B fill:#4ecdc4
-    style C fill:#4ecdc4
-    style D fill:#45b7d1
-    style E fill:#96ceb4
-    style F fill:#feca57
-    style G fill:#ff9ff3
+    style A fill:#2c3e50,stroke:#34495e,color:#ffffff
+    style B fill:#16346F,stroke:#1a4480,color:#ffffff
+    style C fill:#16346F,stroke:#1a4480,color:#ffffff
+    style D fill:#34495e,stroke:#2c3e50,color:#ffffff
+    style E fill:#27ae60,stroke:#229954,color:#ffffff
+    style F fill:#e67e22,stroke:#d35400,color:#ffffff
+    style G fill:#8e44ad,stroke:#7d3c98,color:#ffffff
 ```
 
 ## 🔧 Teknologier og Komponenter
