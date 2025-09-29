@@ -139,5 +139,3 @@ flowchart TD
 - **A/B Testing**: Test forskellige emnelinjer og layouts
 
 ---
-
-*Udviklet til Support Solutions ApS - Automatisering af nyhedsbrev-proces*
