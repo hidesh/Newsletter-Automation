@@ -1,0 +1,213 @@
+{
+  "name": "Auto-Newsletter Support Solutions",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        -16
+      ],
+      "id": "5cef7a20-904b-4788-8a9a-1068a230fc0a",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://www.wired.com/feed/rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        -16
+      ],
+      "id": "b9f742f7-aaa6-4411-a625-d35169984fe2",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=(cybersikkerhed%20OR%20%22cloud%20sikkerhed%22)&hl=da&gl=DK&ceid=DK:da",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        144
+      ],
+      "id": "70158f37-88ea-4d02-afac-c99fe4a0204a",
+      "name": "RSS Read1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        304,
+        64
+      ],
+      "id": "af2dc1e0-9ed9-48ac-b1a0-f6400ff98e55",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Saml alle items, fjern dubletter, sortér på dato, tag top 5 og lav bullets.\nconst all = items.map(i => i.json);\nconst seen = new Set();\nconst list = [];\n\nfor (const it of all) {\n  const link = it.link || it.guid || (it.id && String(it.id).trim()) || '';\n  if (!link || seen.has(link)) continue;\n  seen.add(link);\n\n  let source = '';\n  try { source = new URL(link).hostname; } catch (_) {}\n\n  list.push({\n    title: it.title || '',\n    link,\n    source,\n    pubDate: it.isoDate || it.pubDate || '',\n    snippet: (it.contentSnippet || it.description || it.content || '').replace(/\\s+/g,' ').trim()\n  });\n}\n\nlist.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));\nconst top = list.slice(0, 5);\n\nconst bullets = top.map((a, i) => {\n  const d = a.pubDate ? new Date(a.pubDate).toLocaleDateString('da-DK') : '';\n  const snip = a.snippet ? a.snippet.slice(0, 220) : '';\n  return `${i+1}. ${a.title}\\n${a.link}\\n${d}${snip ? `\\n${snip}` : ''}`;\n}).join('\\n\\n');\n\nreturn [{\n  json: {\n    companyName: 'Support Solutions',\n    website: 'https://support-solutions.dk/',\n    bullets,\n    articles: top\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        64
+      ],
+      "id": "aa13e900-bc66-4232-b193-31677ecf1aff",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Du er en B2B-content writer for Support Solutions. Du skal udfylde en HTML-skabelon. Bevar al eksisterende HTML og CSS 100% uændret – du må kun erstatte følgende placeholders:\n\n- {{INTRO}}: skriv en kort intro (2-3 sætninger) baseret på ugens artikler.\n- {{ARTICLES}}: generér præcis 3 <div class=\"section\"> blokke:\n  - 2 blokke skal være fra artikler hvor linket indeholder \"wired.com\" og 1 blok skal være fra en artikel hvor linket indeholder \"news.google.com\".\n  - Alle blokke skal have:\n    - <h2> med titlen.\n    - <p> med et kort resume (2-3 sætninger for Wired, 4-5 sætninger for Google News).\n    - <p><a href=\"link\">Læs hele artiklen</a></p>.\n  - **Ingen billeder** i nogen af blokkene.\n- {{LINKEDIN}}: skriv en kort tekst, der opfordrer til at følge Support Solutions på LinkedIn.\n\nRegler:\n- Brug kun artiklerne jeg giver i input. Ingen påfund.\n- Vælg 2 artikler fra Wired og 1 artikel fra Google News.\n- Skriv kort, professionelt og uden emojis.\n- Output skal være hele HTML-skabelonen med placeholders udfyldt.\n\nHer er HTML-skabelonen (bevar den uændret, undtagen placeholders):\n\n<!DOCTYPE html>\n<html lang=\"da\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Nyhedsbrev fra Support Solutions</title>\n    <style>\n        body {\n            font-family: Arial, sans-serif;\n            margin: 0;\n            padding: 0;\n            background-color: #FFFFFF; /* Hvid baggrund */\n            color: #333333;\n        }\n        .container {\n            width: 100%;\n            max-width: 600px;\n            margin: 0 auto;\n            background-color: #FFFFFF; /* Hvid baggrund */\n        }\n        .header {\n            background-color: #16346F; /* Primær */\n            padding: 20px;\n            text-align: center;\n            color: #FFFFFF;\n        }\n        .header h1 {\n            margin: 10px 0 0;\n            font-size: 24px;\n        }\n        .logo {\n            max-width: 200px;\n            height: auto;\n        }\n        .content {\n            padding: 20px;\n            background-color: #FFFFFF; /* Hvid baggrund */\n        }\n        .section {\n            padding-bottom: 20px;\n        }\n        .section h2 {\n            color: #16346F; /* Primær */\n            font-size: 22px;\n            border-bottom: 2px solid #FF9C00; /* Sekundær */\n            padding-bottom: 5px;\n        }\n        .section p {\n            line-height: 1.6;\n        }\n        .linkedin-section {\n            background-color: #FFFFFF; /* Hvid baggrund */\n            padding: 20px;\n            text-align: center;\n        }\n        .linkedin-section h3 {\n            color: #16346F; /* Primær */\n            font-size: 20px;\n            margin-top: 0;\n        }\n        .linkedin-button {\n            display: inline-block;\n            background-color: #FF9C00; /* Sekundær */\n            color: #FFFFFF !important;\n            padding: 12px 25px;\n            text-decoration: none;\n            border-radius: 5px;\n            font-weight: bold;\n            margin-top: 15px;\n        }\n        .footer {\n            background-color: #16346F; /* Primær */\n            color: #FFFFFF;\n            padding: 20px;\n            text-align: center;\n            font-size: 14px;\n        }\n        .footer a {\n            color: #FF9C00; /* Sekundær */\n            text-decoration: none;\n        }\n        .services-section {\n            padding: 20px;\n            background-color: #16346F; /* Primær */\n            text-align: center;\n            color: #FFFFFF;\n        }\n        .services-grid {\n            display: grid;\n            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));\n            gap: 20px;\n            margin-top: 20px;\n        }\n        .service-box {\n            background-color: #FFFFFF; /* Hvid baggrund */\n            border: 1px solid #16346F; /* Primær */\n            padding: 20px;\n            text-align: left;\n            border-radius: 8px;\n            color: #333333;\n        }\n        .service-box h4 {\n            color: #16346F; /* Primær */\n            margin-top: 0;\n            margin-bottom: 10px;\n        }\n        .service-box p {\n            font-size: 14px;\n            margin-bottom: 15px;\n        }\n        .service-box .service-button {\n            display: inline-block;\n            background-color: #FF9C00; /* Sekundær */\n            color: #FFFFFF !important;\n            padding: 8px 15px;\n            text-decoration: none;\n            border-radius: 4px;\n            font-size: 12px;\n            font-weight: bold;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <img src=\"https://support-solutions.dk/wp-content/uploads/Logo-hvid-web.png\" alt=\"Support Solutions Logo\" class=\"logo\">\n            <h1>Nyhedsbrev fra Support Solutions</h1>\n        </div>\n        <div class=\"content\">\n            <div class=\"section\">\n                <p>{{INTRO}}</p>\n            </div>\n            {{ARTICLES}}\n        </div>\n        \n        <div class=\"linkedin-section\">\n            <h3>Seneste fra LinkedIn</h3>\n            <p>{{LINKEDIN}}</p>\n            <a href=\"https://www.linkedin.com/company/support-solutions-aps/posts/?feedView=all\" class=\"linkedin-button\">\n                Gå til LinkedIn-opslag\n            </a>\n        </div>\n        \n        <div class=\"services-section\">\n            <h3>Vores primære ydelser</h3>\n            <p>Vi leverer IT-løsninger, der gør livet lettere. Udforsk vores ydelser:</p>\n            <div class=\"services-grid\">\n                <div class=\"service-box\">\n                    <h4>IT-Support</h4>\n                    <p>Hurtig og effektiv IT-support, der holder din virksomhed kørende.</p>\n                    <a href=\"https://support-solutions.dk/it-support/\" class=\"service-button\">Læs mere</a>\n                </div>\n                <div class=\"service-box\">\n                    <h4>Applikationsstyring</h4>\n                    <p>Få kontrol over dine forretningsapplikationer med vores unikke applikationsstyringsløsninger.</p>\n                    <a href=\"https://support-solutions.dk/applikationsstyring/\" class=\"service-button\">Læs mere</a>\n                </div>\n                <div class=\"service-box\">\n                    <h4>Cloud-Services</h4>\n                    <p>Vi hjælper dig med at udnytte alle fordelene ved cloud-teknologi og skalere dine IT-processer.</p>\n                    <a href=\"https://support-solutions.dk/cloud-services/\" class=\"service-button\">Læs mere</a>\n                </div>\n                <div class=\"service-box\">\n                    <h4>IT-Infrastruktur</h4>\n                    <p>Strategisk rådgivning og services til at opbygge en robust og sikker IT-infrastruktur.</p>\n                    <a href=\"https://support-solutions.dk/it-infrastruktur/\" class=\"service-button\">Læs mere</a>\n                </div>\n                <div class=\"service-box\">\n                    <h4>Administrerede services</h4>\n                    <p>Tag ansvaret for din IT-drift, så du kan fokusere på din kerneforretning.</p>\n                    <a href=\"https://support-solutions.dk/administrerede-services/\" class=\"service-button\">Læs mere</a>\n                </div>\n                <div class=\"service-box\">\n                    <h4>IT-konsulenter</h4>\n                    <p>Få et ekstra sæt hænder til din IT-drift med en erfaren IT-konsulent.</p>\n                    <a href=\"https://support-solutions.dk/it-konsulent/\" class=\"service-button\">Læs mere</a>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"footer\">\n            <p>\n                &copy; 2025 Support Solutions ApS. Alle rettigheder forbeholdt.<br>\n                <a href=\"mailto:info@support-solutions.dk\">info@support-solutions.dk</a> | \n                <a href=\"#\">Afmeld nyhedsbrev</a>\n            </p>\n        </div>\n    </div>\n</body>\n</html>",
+              "role": "assistant"
+            },
+            {
+              "content": "=Her er ugens artikler med fuld data (inkl. billed-url):\n\n{{ $json.articles }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        720,
+        64
+      ],
+      "id": "fcea4702-18a5-4941-a896-8f6529610589",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "n5aZxQPTd450aJBR",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "Support Solutions <hidesh@live.dk>",
+        "toEmail": "hidesh@live.dk",
+        "subject": "=Support Solutions — Ugens nyheder ({{ $now.toFormat('dd-LL-yyyy') }})",
+        "html": "={{ $json.message.content }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1072,
+        64
+      ],
+      "id": "7c3ffaac-484e-458a-997a-021f06caf54d",
+      "name": "Send email",
+      "webhookId": "3cc423f0-c89c-453d-91ba-6ac17ee76b95",
+      "credentials": {
+        "smtp": {
+          "id": "HH4AUYnVlSMo0fxZ",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "74c99225-fbfc-4c2f-b7d5-415490411cb2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "53678ddfcbea12174131e9d01f1dec9c70f3591ae98154f5b86bfbb2c0c64308"
+  },
+  "id": "hkUtUxZHPvtBfCuO",
+  "tags": []
+}
