@@ -14,6 +14,13 @@ Workflowet er designet til at:
 
 ## 📊 Workflow Diagram
 
+### n8n Workflow Screenshot
+![n8n Workflow Screenshot](workflow-screenshot-from-n8n.png)
+
+*Det faktiske n8n workflow interface viser den lineære proces fra RSS feeds til email delivery.*
+
+### Detaljeret Flow Diagram
+
 ```mermaid
 flowchart TD
     A[Manual Trigger<br/>Execute Workflow] --> B[RSS Read<br/>Wired.com]
@@ -139,5 +146,3 @@ flowchart TD
 - **A/B Testing**: Test forskellige emnelinjer og layouts
 
 ---
-
-*Udviklet til Support Solutions ApS - Automatisering af nyhedsbrev-proces*
